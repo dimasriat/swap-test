@@ -50,6 +50,47 @@ contract User {
         router.exactInput{value: amountETH}(params);
     }
 
+    function swapToETH(
+        address token0,
+        address token1,
+        uint256 amountToken
+    ) public returns (uint256) {
+        ERC20(token0).approve(address(router), amountToken);
+        
+        address[] memory path = new address[](2);
+        path[0] = token0;
+        path[1] = token1;
+        uint24[] memory fees = new uint24[](path.length - 1);
+        for (uint256 i = 0; i < fees.length; i++) {
+            fees[i] = FEE_MEDIUM;
+        }
+
+        ISwapRouter.ExactInputParams memory params = ISwapRouter
+            .ExactInputParams({
+                path: encodePath(path, fees),
+                recipient: address(0),
+                deadline: block.timestamp + 1000,
+                amountIn: amountToken,
+                amountOutMinimum: 0
+            });
+
+        bytes[] memory data;
+        bytes memory inputs = abi.encodeWithSelector(
+            router.exactInput.selector,
+            params
+        );
+
+        data = new bytes[](2);
+        data[0] = inputs;
+        data[1] = abi.encodeWithSelector(
+            router.unwrapWETH9.selector,
+            0,
+            address(this)
+        );
+
+        router.multicall(data);
+    }
+
     receive() external payable {}
 }
 
@@ -86,12 +127,12 @@ contract SwapTest is Test {
         console2.log("#1 user ETH balance:", address(user).balance);
         console2.log("#1 user USDC balance:", usdc.balanceOf(address(user)));
 
-        // uint256 amountOut2 = user.swapToETH(
-        //     address(usdc),
-        //     address(weth),
-        //     usdc.balanceOf(address(user))
-        // );
-        // console2.log("#2 user ETH balance:", address(user).balance);
-        // console2.log("#2 user USDC balance:", usdc.balanceOf(address(user)));
+        uint256 amountOut2 = user.swapToETH(
+            address(usdc),
+            address(weth),
+            usdc.balanceOf(address(user))
+        );
+        console2.log("#2 user ETH balance:", address(user).balance);
+        console2.log("#2 user USDC balance:", usdc.balanceOf(address(user)));
     }
 }
