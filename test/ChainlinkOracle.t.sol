@@ -3,26 +3,35 @@ pragma solidity ^0.8.13;
 
 import "lib/forge-std/src/Test.sol";
 import "src/ChainlinkOracle.sol";
+import "test/constants/Constants.sol";
 
 contract ChainlinkOracleTest is Test {
     ChainlinkOracle public oracle;
 
     function setUp() public {
         oracle = new ChainlinkOracle(
-            0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612, // ETH / USD Chainlink Oracle
-            0x50834F3163758fcC1Df9973b6e91f0F0F0434aD3 // USDC / USD Chainlink Oracle
+            ETH_USD_ORACLE, // ETH / USD Chainlink Oracle
+            USDC_USD_ORACLE // USDC / USD Chainlink Oracle
         );
     }
 
+    function testETHPriceInUSD() public view {
+        IAggregatorV3 ethOracle = IAggregatorV3(ETH_USD_ORACLE);
+        (, int256 ethPriceInUSD, , , ) = ethOracle.latestRoundData();
+        console2.log("ETH Price in USD:", ethPriceInUSD);
+    }
+
+    function testUSDCPriceInUSD() public view {
+        IAggregatorV3 usdcOracle = IAggregatorV3(USDC_USD_ORACLE);
+        (, int256 usdcPriceInUSD, , , ) = usdcOracle.latestRoundData();
+        console2.log("USDC Price in USD:", usdcPriceInUSD);
+    }
+
     function testGetPriceInEther() public {
-        IAggregatorV3 ethOracle = IAggregatorV3(
-            0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612
-        );
+        IAggregatorV3 ethOracle = IAggregatorV3(ETH_USD_ORACLE);
         (, int256 ethPriceInUSD, , , ) = ethOracle.latestRoundData();
 
-        IAggregatorV3 usdcOracle = IAggregatorV3(
-            0x50834F3163758fcC1Df9973b6e91f0F0F0434aD3
-        );
+        IAggregatorV3 usdcOracle = IAggregatorV3(USDC_USD_ORACLE);
         (, int256 usdcPriceInUSD, , , ) = usdcOracle.latestRoundData();
 
         uint256 price = (uint256(ethPriceInUSD) *
