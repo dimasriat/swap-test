@@ -3,5 +3,6 @@ src = 'src'
 out = 'out'
 libs = ['lib']
 remappings = ['lib/=lib']
+eth-rpc-url = "https://arb1.arbitrum.io/rpc"
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
