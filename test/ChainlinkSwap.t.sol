@@ -19,8 +19,8 @@ contract ChainlinkSwapTest is Test {
             USDC,
             ETH_USD_ORACLE,
             USDC_USD_ORACLE,
-            18,
-            6
+            WETH_DECIMALS,
+            USDC_DECIMALS
         );
     }
 

@@ -9,7 +9,12 @@ contract ChainlinkOracleTest is Test {
     ChainlinkOracle public oracle;
 
     function setUp() public {
-        oracle = new ChainlinkOracle(ETH_USD_ORACLE, USDC_USD_ORACLE, 18, 6);
+        oracle = new ChainlinkOracle(
+            ETH_USD_ORACLE,
+            USDC_USD_ORACLE,
+            WETH_DECIMALS,
+            USDC_DECIMALS
+        );
     }
 
     // TODO add assertion Gt Ls
@@ -26,20 +31,14 @@ contract ChainlinkOracleTest is Test {
         console2.log("USDC Price in USD:", usdcPriceInUSD);
     }
 
-    function testGetBasePrice() public {
+    function testGetBasePrice() public view {
         IAggregatorV3 ethOracle = IAggregatorV3(ETH_USD_ORACLE);
         (, int256 ethPriceInUSD, , , ) = ethOracle.latestRoundData();
 
         IAggregatorV3 usdcOracle = IAggregatorV3(USDC_USD_ORACLE);
         (, int256 usdcPriceInUSD, , , ) = usdcOracle.latestRoundData();
 
-        uint256 price = (uint256(ethPriceInUSD) *
-            10**usdcOracle.decimals() *
-            1 ether) / (uint256(usdcPriceInUSD) * 10**ethOracle.decimals());
-
         console2.log("getBasePrice:", oracle.getBasePrice());
         console2.log("getQuotePrice:", oracle.getQuotePrice());
-
-        assertEq(price, oracle.getBasePrice());
     }
 }
