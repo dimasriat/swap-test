@@ -7,20 +7,41 @@ contract ChainlinkOracle {
     IAggregatorV3 immutable baseFeed;
     IAggregatorV3 immutable quoteFeed;
 
-    constructor(address _baseFeed, address _quoteFeed) {
+    uint256 immutable baseDecimals;
+    uint256 immutable quoteDecimals;
+
+    constructor(
+        address _baseFeed,
+        address _quoteFeed,
+        uint256 _baseDecimals,
+        uint256 _quoteDecimals
+    ) {
         baseFeed = IAggregatorV3(_baseFeed);
         quoteFeed = IAggregatorV3(_quoteFeed);
+
+        baseDecimals = _baseDecimals;
+        quoteDecimals = _quoteDecimals;
     }
 
-    function getBasePriceInEther() public view returns (uint256 price) {
-        price = getPriceInEther();
+    function getBaseDecimals() public view returns (uint256) {
+        return baseDecimals;
     }
 
-    function getQuotePriceInEther() public view returns (uint256 price) {
-        price = (1 ether * 1 ether) / getPriceInEther();
+    function getQuoteDecimals() public view returns (uint256) {
+        return quoteDecimals;
     }
 
-    function getPriceInEther() private view returns (uint256) {
+    function getBasePrice() public view returns (uint256 price) {
+        uint256 priceInEther = _getPriceInEther();
+        price = (priceInEther * 10**getQuoteDecimals()) / 1 ether;
+    }
+
+    function getQuotePrice() public view returns (uint256 price) {
+        uint256 priceInEther = (1 ether * 1 ether) / _getPriceInEther();
+        price = (priceInEther * 10**getBaseDecimals()) / 1 ether;
+    }
+
+    function _getPriceInEther() private view returns (uint256) {
         (, int256 basePrice, , , ) = baseFeed.latestRoundData();
         (, int256 quotePrice, , , ) = quoteFeed.latestRoundData();
 
