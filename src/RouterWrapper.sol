@@ -5,8 +5,6 @@ import "src/interfaces/ISwapRouter.sol";
 import "lib/forge-std/src/Test.sol";
 import "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 
-uint24 constant FEE_MEDIUM = 3000;
-
 contract RouterWrapper {
     ISwapRouter router;
 
@@ -38,7 +36,7 @@ contract RouterWrapper {
         path[1] = token;
 
         uint24[] memory fees = new uint24[](path.length - 1);
-        fees[0] = FEE_MEDIUM;
+        fees[0] = 3000; // FEE_MEDIUM
 
         ISwapRouter.ExactInputParams memory params = ISwapRouter
             .ExactInputParams({
@@ -64,7 +62,7 @@ contract RouterWrapper {
         path[1] = weth;
 
         uint24[] memory fees = new uint24[](path.length - 1);
-        fees[0] = FEE_MEDIUM;
+        fees[0] = 3000; // FEE_MEDIUM
 
         ISwapRouter.ExactInputParams memory params = ISwapRouter
             .ExactInputParams({
