@@ -34,10 +34,9 @@ contract User {
         address[] memory path = new address[](2);
         path[0] = token0;
         path[1] = token1;
+
         uint24[] memory fees = new uint24[](path.length - 1);
-        for (uint256 i = 0; i < fees.length; i++) {
-            fees[i] = FEE_MEDIUM;
-        }
+        fees[0] = FEE_MEDIUM;
 
         ISwapRouter.ExactInputParams memory params = ISwapRouter
             .ExactInputParams({
@@ -56,14 +55,13 @@ contract User {
         uint256 amountToken
     ) public returns (uint256) {
         ERC20(token0).approve(address(router), amountToken);
-        
+
         address[] memory path = new address[](2);
         path[0] = token0;
         path[1] = token1;
+
         uint24[] memory fees = new uint24[](path.length - 1);
-        for (uint256 i = 0; i < fees.length; i++) {
-            fees[i] = FEE_MEDIUM;
-        }
+        fees[0] = FEE_MEDIUM;
 
         ISwapRouter.ExactInputParams memory params = ISwapRouter
             .ExactInputParams({
@@ -118,16 +116,11 @@ contract SwapTest is Test {
         console2.log("#0 user ETH balance:", address(user).balance);
         console2.log("#0 user USDC balance:", usdc.balanceOf(address(user)));
 
-        uint256 amountOut1 = user.swapFromETH(
-            address(weth),
-            address(usdc),
-            1 ether
-        );
-        console2.log("#1 amountOut:", amountOut1);
+        user.swapFromETH(address(weth), address(usdc), 1 ether);
         console2.log("#1 user ETH balance:", address(user).balance);
         console2.log("#1 user USDC balance:", usdc.balanceOf(address(user)));
 
-        uint256 amountOut2 = user.swapToETH(
+        user.swapToETH(
             address(usdc),
             address(weth),
             usdc.balanceOf(address(user))
