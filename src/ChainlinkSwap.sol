@@ -3,7 +3,6 @@ pragma solidity ^0.8.13;
 import "src/interfaces/ISwapRouter.sol";
 import "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import "src/ChainlinkOracle.sol";
-import "lib/forge-std/src/Test.sol";
 
 contract ChainlinkSwap is ChainlinkOracle {
     ISwapRouter constant router =
@@ -74,10 +73,6 @@ contract ChainlinkSwap is ChainlinkOracle {
             amountIn,
             amountOutMin
         );
-
-        console2.log("amountOutMinBeforeSlippage", amountOutMinBeforeSlippage);
-        console2.log("amountOutMin", amountOutMin);
-        console2.log("amountOut", amountOut);
     }
 
     function _swapExactInputSingle(

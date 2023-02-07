@@ -25,7 +25,7 @@ contract ChainlinkSwapTest is Test {
     }
 
     function testSwapFromETH() public {
-        uint256 balanceBefore = address(this).balance;
+        uint256 balance = address(this).balance;
         uint256 amountETH = 1 ether;
 
         // Wrap ETH before Swap
@@ -34,7 +34,7 @@ contract ChainlinkSwapTest is Test {
         // weth balance must be increased
         assertEq(
             weth.balanceOf(address(this)),
-            balanceBefore - address(this).balance
+            balance - address(this).balance
         );
 
         weth.approve(address(swap), amountETH);
@@ -55,18 +55,39 @@ contract ChainlinkSwapTest is Test {
     }
 
     function testSwapToETH() public {
-        weth.deposit{value: 1 ether}();
-        weth.approve(address(swap), 1 ether);
+        uint256 balance = address(this).balance;
+        uint256 amountETH = 1 ether;
 
+        // Wrap ETH before Swap
+        weth.deposit{value: amountETH}();
+
+        // weth balance must be increased
+        assertEq(
+            weth.balanceOf(address(this)),
+            balance - address(this).balance
+        );
+
+        weth.approve(address(swap), amountETH);
+
+        // Swap ETH to USDC, amountOut must be the USDC we got
         uint256 amountOutUSDC = swap.swapExactInputSingle(
             WETH,
             USDC,
             3000,
-            1 ether
+            amountETH
         );
 
-        console.log("USDC", amountOutUSDC);
+        // weth balance must be zero
+        assertEq(weth.balanceOf(address(this)), 0);
 
+        // usdc balance must be the same value as the amountOut
+        assertEq(usdc.balanceOf(address(this)), amountOutUSDC);
+
+        /// @notice performing swap back from USDC to ETH
+
+        balance = address(this).balance;
+
+        // approving usdc
         usdc.approve(address(swap), amountOutUSDC);
         uint256 amountOutETH = swap.swapExactInputSingle(
             USDC,
@@ -75,7 +96,18 @@ contract ChainlinkSwapTest is Test {
             amountOutUSDC
         );
 
-        console.log("ETH", amountOutETH);
-        console.log("WETH Balance", weth.balanceOf(address(this)));
+        // weth balance must be increased
+        assertEq(weth.balanceOf(address(this)), amountOutETH);
+
+        // withdraw weth to eth
+        weth.withdraw(amountOutETH);
+
+        // weth balance must be zero
+        assertEq(weth.balanceOf(address(this)), 0);
+
+        // balance should increased
+        assertEq(address(this).balance, balance + amountOutETH);
     }
+
+    receive() external payable {}
 }
