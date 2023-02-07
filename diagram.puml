@@ -19,8 +19,8 @@ class ChainlinkOracle {
 class RouterWrapper {
 	- ISwapRouter router
 
-	+ bool swapFromETH(address weth,address token,uint256 amountETH,uint256 amountOutMin) [payable]
-	+ bool swapToETH(address token,address weth,uint256 amountToken,uint256 amountOutMin)
+	+ void swapFromETH(address weth,address token,uint256 amountETH,uint256 amountOutMin) [payable]
+	+ void swapToETH(address token,address weth,uint256 amountToken,uint256 amountOutMin)
 }
 
 interface ISwapRouter {

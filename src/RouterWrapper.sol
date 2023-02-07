@@ -16,6 +16,7 @@ contract RouterWrapper {
 
     function encodePath(address[] memory path, uint24[] memory fees)
         private
+        pure
         returns (bytes memory)
     {
         bytes memory res;
@@ -31,7 +32,7 @@ contract RouterWrapper {
         address token,
         uint256 amountETH,
         uint256 amountOutMin
-    ) public returns (uint256) {
+    ) public {
         address[] memory path = new address[](2);
         path[0] = weth;
         path[1] = token;
@@ -55,8 +56,8 @@ contract RouterWrapper {
         address weth,
         uint256 amountToken,
         uint256 amountOutMin
-    ) public returns (uint256) {
-        ERC20(token0).approve(address(router), amountToken);
+    ) public {
+        ERC20(token).approve(address(router), amountToken);
 
         address[] memory path = new address[](2);
         path[0] = token;
