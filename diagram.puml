@@ -19,8 +19,8 @@ class ChainlinkOracle {
 class UniswapV3Wrapper {
 	- ISwapRouter router
 
-	+ bool swapFromETH(address tokenOut) [payable]
-	+ bool swapToETH(address tokenIn, uint256 amount)
+	+ bool swapFromETH(address weth,address token,uint256 amountETH,uint256 amountOutMin) [payable]
+	+ bool swapToETH(address token,address weth,uint256 amountToken,uint256 amountOutMin)
 }
 
 interface ISwapRouter {
@@ -41,10 +41,10 @@ ChainlinkSwap --> UniswapV3Wrapper
 UniswapV3Wrapper ..> ISwapRouter
 ChainlinkOracle ..> IAggregatorV3
 
-class User {
+class User << Test >> {
 	- ChainlinkSwap swap
 	
-	+ bool swapFromETH(address tokenOut)
+	+ bool swapFromETH(address tokenOut, uint256 amount)
 	+ bool swapToETH(address tokenIn, uint256 amount)
 }
 User -> ChainlinkSwap
