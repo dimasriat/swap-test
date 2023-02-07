@@ -2,14 +2,21 @@
 pragma solidity ^0.8.13;
 
 interface ISwapRouter {
-    function unwrapWETH9(uint256 amountMinimum, address recipient)
-        external
-        payable;
+    struct ExactInputSingleParams {
+        address tokenIn;
+        address tokenOut;
+        uint24 fee;
+        address recipient;
+        uint256 deadline;
+        uint256 amountIn;
+        uint256 amountOutMinimum;
+        uint160 sqrtPriceLimitX96;
+    }
 
-    function multicall(bytes[] calldata data)
+    function exactInputSingle(ExactInputSingleParams calldata params)
         external
         payable
-        returns (bytes[] memory results);
+        returns (uint256 amountOut);
 
     struct ExactInputParams {
         bytes path;
@@ -23,17 +30,4 @@ interface ISwapRouter {
         external
         payable
         returns (uint256 amountOut);
-
-    struct ExactOutputParams {
-        bytes path;
-        address recipient;
-        uint256 deadline;
-        uint256 amountOut;
-        uint256 amountInMaximum;
-    }
-
-    function exactOutput(ExactOutputParams calldata params)
-        external
-        payable
-        returns (uint256 amountIn);
 }
