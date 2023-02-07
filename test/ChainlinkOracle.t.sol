@@ -15,12 +15,14 @@ contract ChainlinkOracleTest is Test {
         );
     }
 
+    // TODO add assertion Gt Ls
     function testETHPriceInUSD() public view {
         IAggregatorV3 ethOracle = IAggregatorV3(ETH_USD_ORACLE);
         (, int256 ethPriceInUSD, , , ) = ethOracle.latestRoundData();
         console2.log("ETH Price in USD:", ethPriceInUSD);
     }
 
+    // TODO add assertion Gt Ls
     function testUSDCPriceInUSD() public view {
         IAggregatorV3 usdcOracle = IAggregatorV3(USDC_USD_ORACLE);
         (, int256 usdcPriceInUSD, , , ) = usdcOracle.latestRoundData();
