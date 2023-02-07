@@ -4,15 +4,23 @@ pragma solidity ^0.8.13;
 import "src/interfaces/IAggregatorV3.sol";
 
 contract ChainlinkOracle {
-    IAggregatorV3 baseFeed;
-    IAggregatorV3 quoteFeed;
+    IAggregatorV3 immutable baseFeed;
+    IAggregatorV3 immutable quoteFeed;
 
     constructor(address _baseFeed, address _quoteFeed) {
         baseFeed = IAggregatorV3(_baseFeed);
         quoteFeed = IAggregatorV3(_quoteFeed);
     }
 
-    function getPriceInEther() public view returns (uint256) {
+    function getBasePriceInEther() public view returns (uint256 price) {
+        price = getPriceInEther();
+    }
+
+    function getQuotePriceInEther() public view returns (uint256 price) {
+        price = (1 ether * 1 ether) / getPriceInEther();
+    }
+
+    function getPriceInEther() private view returns (uint256) {
         (, int256 basePrice, , , ) = baseFeed.latestRoundData();
         (, int256 quotePrice, , , ) = quoteFeed.latestRoundData();
 

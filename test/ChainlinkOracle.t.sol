@@ -29,7 +29,7 @@ contract ChainlinkOracleTest is Test {
         console2.log("USDC Price in USD:", usdcPriceInUSD);
     }
 
-    function testGetPriceInEther() public {
+    function testGetBasePriceInEther() public {
         IAggregatorV3 ethOracle = IAggregatorV3(ETH_USD_ORACLE);
         (, int256 ethPriceInUSD, , , ) = ethOracle.latestRoundData();
 
@@ -40,6 +40,9 @@ contract ChainlinkOracleTest is Test {
             10**usdcOracle.decimals() *
             1 ether) / (uint256(usdcPriceInUSD) * 10**ethOracle.decimals());
 
-        assertEq(price, oracle.getPriceInEther());
+        console2.log("getBasePriceInEther:", oracle.getBasePriceInEther());
+        console2.log("getQuotePriceInEther:", oracle.getQuotePriceInEther());
+
+        assertEq(price, oracle.getBasePriceInEther());
     }
 }
