@@ -28,9 +28,8 @@ contract RouterWrapper {
     function swapFromETH(
         address weth,
         address token,
-        uint256 amountETH,
         uint256 amountOutMin
-    ) public {
+    ) public payable {
         address[] memory path = new address[](2);
         path[0] = weth;
         path[1] = token;
@@ -43,10 +42,10 @@ contract RouterWrapper {
                 path: encodePath(path, fees),
                 recipient: address(this),
                 deadline: block.timestamp + 1000,
-                amountIn: amountETH,
+                amountIn: msg.value,
                 amountOutMinimum: amountOutMin
             });
-        router.exactInput{value: amountETH}(params);
+        router.exactInput{value: msg.value}(params);
     }
 
     function swapToETH(
