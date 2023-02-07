@@ -1,40 +1,34 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
-
-import "src/RouterWrapper.sol";
-import "src/ChainlinkOracle.sol";
-
-address constant WETH = 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1;
+import "lib/v3-periphery/contracts/interfaces/ISwapRouter.sol";
+import "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 contract ChainlinkSwap {
-    RouterWrapper routerWrapper;
-    ChainlinkOracle oracle;
+    ISwapRouter constant router =
+        ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
 
-    constructor(RouterWrapper _routerWrapper, ChainlinkOracle _oracle) {
-        routerWrapper = _routerWrapper;
-        oracle = _oracle;
+    function swapExactInputSingle(
+        address tokenIn,
+        address tokenOut,
+        uint24 poolFee,
+        uint256 amountIn,
+        uint256 amountOutMinimum
+    ) external returns (uint256 amountOut) {
+        IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn);
+        IERC20(tokenIn).approve(address(router), amountIn);
+
+        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
+            .ExactInputSingleParams({
+                tokenIn: tokenIn,
+                tokenOut: tokenOut,
+                fee: poolFee,
+                recipient: msg.sender,
+                deadline: block.timestamp,
+                amountIn: amountIn,
+                amountOutMinimum: amountOutMinimum,
+                sqrtPriceLimitX96: 0
+            });
+
+        amountOut = router.exactInputSingle(params);
     }
-
-    function swapFromETH(address tokenOut) public payable {
-        uint256 amountOutMin = 0;
-
-        routerWrapper.swapFromETH{value: msg.value}(
-            WETH,
-            tokenOut,
-            amountOutMin
-        );
-    }
-
-    function swapToETH(address tokenIn, uint256 amountIn) public {
-		uint256 amountOutMin = 0;
-
-        routerWrapper.swapToETH(
-			tokenIn,
-            WETH,
-			amountIn,
-            amountOutMin
-        );
-	}
-
-    receive() external payable {}
 }
