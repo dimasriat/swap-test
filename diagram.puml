@@ -2,7 +2,7 @@
 
 class ChainlinkSwap {
 	- ChainlinkOracle oracle
-	- UniswapV3Wrapper uniswapWrapper
+	- RouterWrapper uniswapWrapper
 
 	+ bool swapFromETH(address tokenOut) [payable]
 	+ bool swapToETH(address tokenIn, uint256 amount)
@@ -16,7 +16,7 @@ class ChainlinkOracle {
 	+ uint256 getQuotePrice()
 }
 
-class UniswapV3Wrapper {
+class RouterWrapper {
 	- ISwapRouter router
 
 	+ bool swapFromETH(address weth,address token,uint256 amountETH,uint256 amountOutMin) [payable]
@@ -37,8 +37,8 @@ interface IAggregatorV3 {
 hide IAggregatorV3 attributes
 
 ChainlinkSwap --> ChainlinkOracle
-ChainlinkSwap --> UniswapV3Wrapper
-UniswapV3Wrapper ..> ISwapRouter
+ChainlinkSwap --> RouterWrapper
+RouterWrapper ..> ISwapRouter
 ChainlinkOracle ..> IAggregatorV3
 
 class User << Test >> {
