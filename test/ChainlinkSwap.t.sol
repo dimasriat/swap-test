@@ -14,7 +14,14 @@ contract ChainlinkSwapTest is Test {
     ChainlinkSwap private swap;
 
     function setUp() public {
-        swap = new ChainlinkSwap(WETH, USDC, ETH_USD_ORACLE, USDC_USD_ORACLE);
+        swap = new ChainlinkSwap(
+            WETH,
+            USDC,
+            ETH_USD_ORACLE,
+            USDC_USD_ORACLE,
+            18,
+            6
+        );
     }
 
     function testSwapFromETH() public {
@@ -29,5 +36,30 @@ contract ChainlinkSwapTest is Test {
         );
 
         console.log("USDC", amountOut);
+    }
+
+    function testSwapToETH() public {
+        weth.deposit{value: 1 ether}();
+        weth.approve(address(swap), 1 ether);
+
+        uint256 amountOutUSDC = swap.swapExactInputSingle(
+            WETH,
+            USDC,
+            3000,
+            1 ether
+        );
+
+        console.log("USDC", amountOutUSDC);
+
+        usdc.approve(address(swap), amountOutUSDC);
+        uint256 amountOutETH = swap.swapExactInputSingle(
+            USDC,
+            WETH,
+            3000,
+            amountOutUSDC
+        );
+
+        console.log("ETH", amountOutETH);
+        console.log("WETH Balance", weth.balanceOf(address(this)));
     }
 }

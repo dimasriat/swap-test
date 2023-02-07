@@ -3,6 +3,7 @@ pragma solidity ^0.8.13;
 import "src/interfaces/ISwapRouter.sol";
 import "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import "src/ChainlinkOracle.sol";
+import "lib/forge-std/src/Test.sol";
 
 contract ChainlinkSwap is ChainlinkOracle {
     ISwapRouter constant router =
@@ -15,8 +16,10 @@ contract ChainlinkSwap is ChainlinkOracle {
         address _baseToken,
         address _quoteToken,
         address _baseFeed,
-        address _quoteFeed
-    ) ChainlinkOracle(_baseFeed, _quoteFeed) {
+        address _quoteFeed,
+        uint256 _baseDecimals,
+        uint256 _quoteDecimals
+    ) ChainlinkOracle(_baseFeed, _quoteFeed, _baseDecimals, _quoteDecimals) {
         baseToken = IERC20(_baseToken);
         quoteToken = IERC20(_quoteToken);
     }
@@ -28,24 +31,40 @@ contract ChainlinkSwap is ChainlinkOracle {
         uint256 amountIn
     ) public returns (uint256 amountOut) {
         uint256 price;
+        uint256 amountOutMinBeforeSlippage;
+        uint256 amountOutMin;
 
         if (tokenIn == address(quoteToken) && tokenOut == address(baseToken)) {
-            // input is USDC
-            price = getQuotePriceInEther();
+            // amountIn is USDC (10**6)
+
+            // price is WETH (10**18)
+            price = getQuotePrice();
+
+            // amountOutMinBeforeSlippage is WETH (10**18)
+            amountOutMinBeforeSlippage =
+                (price * amountIn) /
+                10**getQuoteDecimals();
         } else if (
             tokenIn == address(baseToken) && tokenOut == address(quoteToken)
         ) {
-            // input is WETH
-            price = getBasePriceInEther();
+            // amountIn is WETH (10**18)
+
+            // price is USDC (10**6)
+            price = getBasePrice();
+
+            // amountOutMinBeforeSlippage is USDC (10**6)
+            amountOutMinBeforeSlippage =
+                (price * amountIn) /
+                10**getBaseDecimals();
         } else {
             revert(
                 "both tokenIn and tokenOut must be either quote and base or vice versa!"
             );
         }
 
-        uint256 amountOutMinBeforeSlippage = (price * amountIn) / 1 ether;
-        uint256 amountOutMin = amountOutMinBeforeSlippage -
-            (amountOutMinBeforeSlippage * 0.01 ether) /
+        amountOutMin =
+            amountOutMinBeforeSlippage -
+            (0.01 ether * amountOutMinBeforeSlippage) /
             1 ether;
 
         amountOut = _swapExactInputSingle(
@@ -55,6 +74,10 @@ contract ChainlinkSwap is ChainlinkOracle {
             amountIn,
             amountOutMin
         );
+
+        console2.log("amountOutMinBeforeSlippage", amountOutMinBeforeSlippage);
+        console2.log("amountOutMin", amountOutMin);
+        console2.log("amountOut", amountOut);
     }
 
     function _swapExactInputSingle(
