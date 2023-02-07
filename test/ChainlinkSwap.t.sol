@@ -25,17 +25,33 @@ contract ChainlinkSwapTest is Test {
     }
 
     function testSwapFromETH() public {
-        weth.deposit{value: 1 ether}();
-        weth.approve(address(swap), 1 ether);
+        uint256 balanceBefore = address(this).balance;
+        uint256 amountETH = 1 ether;
 
+        // Wrap ETH before Swap
+        weth.deposit{value: amountETH}();
+
+        // weth balance must be increased
+        assertEq(
+            weth.balanceOf(address(this)),
+            balanceBefore - address(this).balance
+        );
+
+        weth.approve(address(swap), amountETH);
+
+        // Swap ETH to USDC, amountOut must be the USDC we got
         uint256 amountOut = swap.swapExactInputSingle(
             WETH,
             USDC,
             3000,
-            1 ether
+            amountETH
         );
 
-        console.log("USDC", amountOut);
+        // weth balance must be zero
+        assertEq(weth.balanceOf(address(this)), 0);
+
+        // usdc balance must be the same value as the amountOut
+        assertEq(usdc.balanceOf(address(this)), amountOut);
     }
 
     function testSwapToETH() public {
